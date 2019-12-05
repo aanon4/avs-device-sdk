@@ -148,7 +148,7 @@ bool BaseStreamSource::init(const AudioFormat* audioFormat) {
             return false;
         }
         gst_app_src_set_caps(GST_APP_SRC(appsrc), audioCaps);
-        g_object_set(G_OBJECT(appsrc), "format", GST_FORMAT_TIME, NULL);
+        g_object_set(G_OBJECT(appsrc), "format", GST_FORMAT_TIME, nullptr);
     } else {
         ACSDK_DEBUG9(LX("initNoAudioFormat"));
     }
@@ -363,3 +363,10 @@ void BaseStreamSource::preprocess() {
 
 }  // namespace mediaPlayer
 }  // namespace alexaClientSDK
+
+// Missing symbols for AlpineLinux
+extern "C" {
+int backtrace() { return 0; }
+char** backtrace_symbols() { return (char**)NULL; }
+int __snprintf_chk() { return 0; }
+}

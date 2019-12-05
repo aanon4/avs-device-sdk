@@ -8,7 +8,7 @@ target_include_directories(KITTAI PUBLIC
 	"${KWD_SOURCE_DIR}/include"
 	"${KITTAI_SOURCE_DIR}/include")
 
-target_link_libraries(KITTAI KWD AVSCommon "${KITTAI_KEY_WORD_DETECTOR_LIB_PATH}" blas)
+target_link_libraries(KITTAI KWD AVSCommon "${KITTAI_KEY_WORD_DETECTOR_LIB_PATH}" /opt/OpenBLAS/lib/libopenblas.a)
 
 # install target
 asdk_install()

@@ -240,7 +240,7 @@ uint64_t MediaPlayer::getNumBytesBuffered() {
     }
     if (m_pipeline.decodedQueue) {
         guint bytesInQueue = 0;
-        g_object_get(m_pipeline.decodedQueue, "current-level-bytes", &bytesInQueue, NULL);
+        g_object_get(m_pipeline.decodedQueue, "current-level-bytes", &bytesInQueue, nullptr);
         bytesBuffered += bytesInQueue;
     }
     return bytesBuffered;
@@ -379,9 +379,9 @@ bool MediaPlayer::setVolume(int8_t volume) {
 
 void MediaPlayer::handleSetVolumeInternal(gdouble gstVolume) {
     if (gstVolume == 0) {
-        g_object_set(m_pipeline.volume, "volume", VOLUME_ZERO, NULL);
+        g_object_set(m_pipeline.volume, "volume", VOLUME_ZERO, nullptr);
     } else {
-        g_object_set(m_pipeline.volume, "volume", gstVolume, NULL);
+        g_object_set(m_pipeline.volume, "volume", gstVolume, nullptr);
     }
     m_lastVolume = gstVolume;
 }
@@ -448,7 +448,7 @@ void MediaPlayer::handleAdjustVolume(std::promise<bool>* promise, int8_t delta) 
     }
 
     gdouble gstVolume;
-    g_object_get(m_pipeline.volume, "volume", &gstVolume, NULL);
+    g_object_get(m_pipeline.volume, "volume", &gstVolume, nullptr);
 
     gdouble gstDelta;
     if (!toGstDeltaVolume->normalize(delta, &gstDelta)) {
@@ -490,7 +490,7 @@ void MediaPlayer::handleSetMute(std::promise<bool>* promise, bool mute) {
     }
 
     // A fix for GStreamer crashing for zero volume on PCM data
-    g_object_set(m_pipeline.volume, "volume", mute || m_lastVolume == 0 ? VOLUME_ZERO : m_lastVolume, NULL);
+    g_object_set(m_pipeline.volume, "volume", mute || m_lastVolume == 0 ? VOLUME_ZERO : m_lastVolume, nullptr);
     m_isMuted = mute;
     promise->set_value(true);
 }
@@ -537,7 +537,7 @@ void MediaPlayer::handleGetSpeakerSettings(
     gdouble avsVolume;
     gdouble gstVolume;
     gboolean mute;
-    g_object_get(m_pipeline.volume, "volume", &gstVolume, "mute", &mute, NULL);
+    g_object_get(m_pipeline.volume, "volume", &gstVolume, "mute", &mute, nullptr);
 
     /// A part of GStreamer crash fix for zero volume on PCM data
     mute = m_isMuted;
@@ -656,7 +656,7 @@ bool MediaPlayer::setupPipeline() {
             LX("setupPipelineFailed").d("name", RequiresShutdown::name()).d("reason", "createQueueElementFailed"));
         return false;
     }
-    g_object_set(m_pipeline.decodedQueue, "use-buffering", m_isLiveMode ? FALSE : TRUE, NULL);
+    g_object_set(m_pipeline.decodedQueue, "use-buffering", m_isLiveMode ? FALSE : TRUE, nullptr);
     m_pipeline.converter = gst_element_factory_make("audioconvert", "converter");
     if (!m_pipeline.converter) {
         ACSDK_ERROR(
@@ -718,10 +718,10 @@ bool MediaPlayer::setupPipeline() {
             // Found key, add it to capability struct
             switch (it.second) {
                 case G_TYPE_INT:
-                    gst_caps_set_simple(caps, it.first.c_str(), it.second, std::stoi(value), NULL);
+                    gst_caps_set_simple(caps, it.first.c_str(), it.second, std::stoi(value), nullptr);
                     break;
                 case G_TYPE_STRING:
-                    gst_caps_set_simple(caps, it.first.c_str(), it.second, value.c_str(), NULL);
+                    gst_caps_set_simple(caps, it.first.c_str(), it.second, value.c_str(), nullptr);
                     break;
             }
         }
@@ -747,7 +747,7 @@ bool MediaPlayer::setupPipeline() {
                 return false;
             }
 
-            g_object_set(G_OBJECT(m_pipeline.caps), "caps", caps, NULL);
+            g_object_set(G_OBJECT(m_pipeline.caps), "caps", caps, nullptr);
         } else {
             ACSDK_INFO(LX("invalidOutputConversion")
                            .d("name", RequiresShutdown::name())
@@ -832,7 +832,7 @@ void MediaPlayer::tearDownTransientPipelineElements(bool notifyStop) {
     m_isBufferUnderrun = false;
     if (m_pipeline.audioSink) {
         // Set audioSink's sink option back to TRUE
-        g_object_set(m_pipeline.audioSink, "sync", TRUE, NULL);
+        g_object_set(m_pipeline.audioSink, "sync", TRUE, nullptr);
     }
 }
 
@@ -1135,11 +1135,11 @@ gboolean MediaPlayer::handleBusMessage(GstMessage* message) {
                      * play choppily
                      */
                     ACSDK_DEBUG5(LX("audioSink").d("name", RequiresShutdown::name()).m("Sync option set to false."));
-                    g_object_set(m_pipeline.audioSink, "sync", FALSE, NULL);
+                    g_object_set(m_pipeline.audioSink, "sync", FALSE, nullptr);
                 } else if (GST_STATE_NULL == newState) {
                     // Reset sync state back to true if tsdemux changes to NULL state
                     ACSDK_DEBUG5(LX("audioSink").d("name", RequiresShutdown::name()).m("Sync option set to true."));
-                    g_object_set(m_pipeline.audioSink, "sync", TRUE, NULL);
+                    g_object_set(m_pipeline.audioSink, "sync", TRUE, nullptr);
                 }
             }
             break;
@@ -1845,7 +1845,7 @@ void MediaPlayer::setEqualizerBandLevels(audio::EqualizerBandLevelMap bandLevelM
                 G_OBJECT(m_pipeline.equalizer),
                 GSTREAMER_BASS_BAND_NAME,
                 static_cast<gdouble>(clampEqualizerLevel(it->second)),
-                NULL);
+                nullptr);
         }
         it = bandLevelMap.find(audio::EqualizerBand::MIDRANGE);
         if (bandLevelMap.end() != it) {
@@ -1853,7 +1853,7 @@ void MediaPlayer::setEqualizerBandLevels(audio::EqualizerBandLevelMap bandLevelM
                 G_OBJECT(m_pipeline.equalizer),
                 GSTREAMER_MIDRANGE_BAND_NAME,
                 static_cast<gdouble>(clampEqualizerLevel(it->second)),
-                NULL);
+                nullptr);
         }
         it = bandLevelMap.find(audio::EqualizerBand::TREBLE);
         if (bandLevelMap.end() != it) {
@@ -1861,7 +1861,7 @@ void MediaPlayer::setEqualizerBandLevels(audio::EqualizerBandLevelMap bandLevelM
                 G_OBJECT(m_pipeline.equalizer),
                 GSTREAMER_TREBLE_BAND_NAME,
                 static_cast<gdouble>(clampEqualizerLevel(it->second)),
-                NULL);
+                nullptr);
         }
         promise.set_value();
         return false;
